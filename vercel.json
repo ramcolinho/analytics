@@ -5,20 +5,25 @@
         "src": "server.js",
         "use": "@vercel/node",
         "config": {
-          "maxDuration": 10,
-          "memory": 1024
+          "maxDuration": 60
         }
       }
     ],
     "routes": [
       {
         "src": "/socket.io/(.*)",
-        "dest": "server.js"
+        "dest": "/server.js"
+      },
+      {
+        "src": "/health",
+        "dest": "/server.js"
       },
       {
         "src": "/(.*)",
-        "dest": "server.js"
+        "dest": "/server.js"
       }
     ],
-    "regions": ["iad1"]
+    "env": {
+      "NODE_ENV": "production"
+    }
   }
