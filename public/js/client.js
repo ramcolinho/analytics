@@ -1,4 +1,3 @@
-const SOCKET_URL = 'https://bromcom-analytics.vercel.app';
         
 
 const socket = io({
