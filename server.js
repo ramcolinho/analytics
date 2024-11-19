@@ -5,6 +5,14 @@ const { Server } = require('socket.io');
 const axios = require('axios');
 const path = require('path');
 
+// CORS middleware
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    next();
+});
+
 app.use(express.static('public'));
 app.use(express.json());
 
@@ -12,6 +20,14 @@ const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
+        credentials: true,
+        allowedHeaders: ["*"]
+    },
+    transports: ['polling'],
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    allowRequest: (req, callback) => {
+        callback(null, true);
     }
 });
 // Static dosyaları serve et
