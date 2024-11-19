@@ -1,27 +1,21 @@
 const express = require('express');
 const app = express();
-const server = require('http').createServer(app);
 const { Server } = require('socket.io');
+const cors = require('cors');
+const http = require('http');
 const axios = require('axios');
 const path = require('path');
+app.use(cors());
 
-// CORS middleware
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-    next();
-});
+const server = http.createServer(app);
+
 
 app.use(express.static('public'));
 app.use(express.json());
 
 const io = new Server(server, {
     cors: {
-        origin: true, // "*" yerine true kullanıyoruz
-        methods: ["GET", "POST"],
-        allowedHeaders: ["*"],
-        credentials: false
+        origin: 'http://localhost:3000',
     },
     transports: ['polling'],
     pingTimeout: 60000,
