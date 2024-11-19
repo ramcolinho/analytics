@@ -1,7 +1,12 @@
 const express = require('express');
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 const axios = require('axios');
 const path = require('path');
 
@@ -50,11 +55,15 @@ io.on('connection', async (socket) => {
             console.error('Veri çekme hatası:', error);
         }
     });
-
 });
 
-// Server'ı başlat
-const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-    console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
-});
+// Development modunda server'ı başlat
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    server.listen(PORT, () => {
+        console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
+    });
+}
+
+// Vercel için export
+module.exports = server;
