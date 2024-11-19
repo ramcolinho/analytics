@@ -23,7 +23,7 @@
       pingTimeout: 5000
   });
   
-  const PORT = process.env.PORT || 8080;
+  const PORT = process.env.PORT || 10000;
   const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
   
   io.on('connection', async (socket) => {
