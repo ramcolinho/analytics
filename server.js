@@ -14,11 +14,13 @@
   const server = http.createServer(app);
   
   const io = new Server(server, {
-      cors: {
-          origin: '*',
-          methods: ['GET', 'POST']
-      },
-      transports: ['polling', 'websocket']
+        cors: {
+            origin: '*',
+            methods: ['GET', 'POST']
+        },
+        transports: ['websocket'],
+        pingInterval: 10000,      // Ping süresini düşür
+        pingTimeout: 5000,        // Ping süresini düşür
   });
   
   const PORT = process.env.PORT || 8080;
