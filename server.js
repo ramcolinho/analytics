@@ -19,7 +19,7 @@ const io = new Server(server, {
     cors: {
         origin: process.env.NODE_ENV === 'production' 
             ? process.env.ALLOWED_ORIGIN || '*'
-            : 'http://localhost:3000',
+            : 'http://localhost:8080',
         methods: ['GET', 'POST'],
         credentials: true
     },
@@ -29,7 +29,7 @@ const io = new Server(server, {
 });
 
 // Constants
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
 
 // Routes
