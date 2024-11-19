@@ -1,13 +1,13 @@
 const SOCKET_URL = 'https://bromcom-analytics.vercel.app';
         
 
-        const socket = io(SOCKET_URL,{
-            path: '/socket.io/',
-            transports: ['polling'],
-            autoConnect: true,
-            forceNew: true,
-            withCredentials: true
-        });
+const socket = io({
+    path: '/socket.io/',
+    transports: ['polling'],
+    autoConnect: true,
+    forceNew: true,
+    withCredentials: false
+});
 
 const ctx = document.getElementById('myChart').getContext('2d');
 const tabs = {
