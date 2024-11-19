@@ -1,13 +1,14 @@
-const socket = io({
-    transports: ['polling'], // Sadece polling kullan
-    reconnection: true,
-    reconnectionAttempts: Infinity,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
-    timeout: 20000,
-    autoConnect: true,
-    forceNew: true
-});
+const SOCKET_URL = 'https://bromcom-analytics.vercel.app';
+        
+        const socket = io(SOCKET_URL, {
+            path: '/socket.io/',
+            transports: ['polling'],
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            timeout: 20000,
+            forceNew: true
+        });
 
 const ctx = document.getElementById('myChart').getContext('2d');
 const tabs = {
