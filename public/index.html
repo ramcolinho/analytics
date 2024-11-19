@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="https://designsystem.bromcomcloud.com/demo/analytics/bromcom-ui/bromcom-ui.esm.js"></script>
+    <link rel="stylesheet" href="https://designsystem.bromcomcloud.com/demo/analytics/bromcom-ui/bromcom-ui.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .chart-container {
+            width: 800px;
+            margin: 50px auto;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div class="chart-container">
+        <canvas id="myChart"></canvas>
+        <div>
+            <bcm-button>Yeni Veri Ekle</bcm-button>
+        </div>
+    </div>
+    <div class="controls">
+        <button onclick="addRandomData()">Yeni Veri Ekle</button>
+        <button onclick="post()">Rastgele Veri Sil</button>
+    </div> -->
+    <div class="tw-w-full tw-max-w-[600px] tw-p-10">
+        <bcm-tab-group id="tab-group" size="medium" active="1" color="blue">  <!--small | medium | large   default= 'medium'-->
+            <bcm-tab-item>
+              <bcm-tab-item-header>
+                Form
+              </bcm-tab-item-header>
+              <div class="tw-p-4">
+                <bcm-form id="user-form" validation name="user-form">
+                    <div className="step-container">
+                        <bcm-input full-width name="name" label="Name" required></bcm-input>
+                        <bcm-input full-width name="surname" label="Surname" required></bcm-input>
+                    </div>
+                <bcm-button id="prev-button" onclick="submit()">Submit</bcm-button>
+              </div>
+            </bcm-form>
+            </bcm-tab-item>
+            <bcm-tab-item>
+              <bcm-tab-item-header>
+                Stepper
+              </bcm-tab-item-header>
+              <div class="tw-p-4">
+                <bcm-stepper id="stepperWithDom" active="1" linear>
+                    <bcm-step id="user-info" icon="fal fa-user" title="Person" description="Person information">
+                        <bcm-form id="user-form" validation name="user-form">
+                            <div className="step-container">
+                                <bcm-input full-width name="name" label="Name" required></bcm-input>
+                                <bcm-input full-width name="surname" label="Surname" required></bcm-input>
+                            </div>
+                        </bcm-form>
+                    </bcm-step>
+                    <bcm-step id="contact-info" icon="fal fa-phone-plus" disabled title="Contact" description="Enter Contact Information">
+                        <bcm-form id="contact-form">
+                            <div className="step-container">
+                                <bcm-input full-width name="email" label="Email" type="email" required></bcm-input>
+                                <bcm-input full-width name="phone" label="Phone" type="tel" required></bcm-input>
+                            </div>
+                        </bcm-form>
+                    </bcm-step>
+                    <bcm-step id="address-info" icon="fal fa-map-marker" title="Address" description="Enter Address Information">
+                        <bcm-form id="address-form" validation>
+                            <div className="step-container">
+                                <bcm-input full-width name="street" label="Street" required></bcm-input>
+                                <bcm-input full-width name="city" label="City" required></bcm-input>
+                                <bcm-input full-width name="zip" label="ZIP" required></bcm-input>
+                            </div>
+                        </bcm-form>
+                    </bcm-step>
+                </bcm-stepper>
+                <footer style="display:'flex'; flex-direction: 'row'; justify-content:'flex-start'; gap:'10px'">
+                    <bcm-button id="prev-button" onclick="prev()">Prev</bcm-button>
+                    <bcm-button id="next-button" onclick="next()">Next</bcm-button>
+                </footer>
+              </div>
+             
+       
+        <bcm-button process-start-id="step1-start">Start Process</bcm-button>
+        <bcm-button status="success" process-end-id="step1-end">End Process</bcm-button>
+            </bcm-tab-item>
+            <bcm-tab-item>
+                <bcm-tab-item-header>
+                    Tooltip
+                  </bcm-tab-item-header>
+                  <div class="tw-p-4">
+                    <bcm-tooltip message="analytics tooltip" trigger="hover">
+                        <bcm-button>Hover me</bcm-button>
+                    </bcm-tooltip>
+                  </div>
+            </bcm-tab-item>
+       </bcm-tab-group>
+
+       <div class="tw-p-3">
+        <canvas class="tw-max-w-[500px] tw-max-h-[500px]" id="myChart"></canvas>
+       </div>
+    </div>
+    </div>
+    <script src="/js/client.js" defer></script>
+    <script>
+        document.getElementById('tab-group').addEventListener('bcm-tab-change', (e) => {
+            e.preventDefault();
+            socket?.emit('changeTab', e.detail);
+        });
+      
+         function submit() {
+            const form = document.getElementById('user-form');
+            form.submit();
+        }
+    </script>
+</body>
+</html>
+
