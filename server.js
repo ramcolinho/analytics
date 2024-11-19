@@ -7,7 +7,11 @@ const axios = require('axios');
 const path = require('path');
 
 // Express middleware
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 app.use(express.static('public'));
 app.use(express.json());
 
@@ -17,9 +21,7 @@ const server = http.createServer(app);
 // Socket.IO setup
 const io = new Server(server, {
     cors: {
-        origin: process.env.NODE_ENV === 'production' 
-            ? process.env.ALLOWED_ORIGIN || '*'
-            : 'http://localhost:8080',
+        origin: '*',
         methods: ['GET', 'POST'],
         credentials: true
     },
