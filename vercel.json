@@ -5,25 +5,23 @@
         "src": "server.js",
         "use": "@vercel/node",
         "config": {
-          "maxDuration": 60
+          "runtime": "edge"
         }
       }
     ],
     "routes": [
       {
         "src": "/socket.io/(.*)",
-        "dest": "/server.js"
-      },
-      {
-        "src": "/health",
-        "dest": "/server.js"
+        "dest": "/server.js",
+        "headers": {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+          "Access-Control-Allow-Headers": "*"
+        }
       },
       {
         "src": "/(.*)",
         "dest": "/server.js"
       }
-    ],
-    "env": {
-      "NODE_ENV": "production"
-    }
+    ]
   }

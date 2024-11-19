@@ -5,21 +5,30 @@ const { Server } = require('socket.io');
 const axios = require('axios');
 const path = require('path');
 
+// CORS middleware
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    next();
+});
+
 app.use(express.static('public'));
 app.use(express.json());
 
 const io = new Server(server, {
     cors: {
         origin: "*",
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST"],
+        allowedHeaders: ["*"],
+        credentials: true
     },
-    // Polling yerine websocket kullan
-    transports: ['websocket'],
-    pingTimeout: 30000,
-    pingInterval: 25000,
+    allowEIO3: true,
+    transports: ['polling', 'websocket'],
+    pingInterval: 10000,
+    pingTimeout: 5000,
     upgradeTimeout: 30000,
-    allowUpgrades: true,
-    cookie: false
+    allowUpgrades: true
 });
 
 const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
@@ -58,16 +67,12 @@ io.on('connection', async (socket) => {
     });
 });
 
-// Sağlık kontrolü endpoint'i
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
-});
-
 // Ana route
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Development için
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
