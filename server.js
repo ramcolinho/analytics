@@ -17,16 +17,18 @@ app.use((req, res, next) => {
 app.use(express.static('public'));
 app.use(express.json());
 
-// Socket.IO setup - Tek bir io instance
+// Socket.IO setup
 const io = new Server(httpServer, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
         credentials: true
     },
+    transports: ['polling', 'websocket'],
     path: '/socket.io/',
-    transports: ['websocket', 'polling'],
-    allowEIO3: true
+    allowEIO3: true,
+    pingTimeout: 60000,
+    pingInterval: 25000
 });
 
 const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
@@ -38,7 +40,7 @@ app.get('/', (req, res) => {
 
 // Socket.IO bağlantı yönetimi
 io.on('connection', async (socket) => {
-    console.log('Bir kullanıcı bağlandı');
+    console.log('Bir kullanıcı bağlandı', socket.id);
 
     try {
         const response = await axios.get(MOCK_API_URL);
@@ -70,13 +72,12 @@ io.on('connection', async (socket) => {
         }
     });
 
-    // Disconnect eventi
     socket.on('disconnect', () => {
-        console.log('Kullanıcı ayrıldı');
+        console.log('Kullanıcı ayrıldı:', socket.id);
     });
 });
 
-// Lokal geliştirme için
+// Development için server
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     httpServer.listen(PORT, () => {
@@ -84,5 +85,4 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-// Vercel için export
 module.exports = httpServer;

@@ -118,12 +118,18 @@
 
         // Socket.IO bağlantısı
         const socket = io({
-            path: '/socket.io/',
-            transports: ['websocket', 'polling'],
-            secure: true,
-            reconnection: true,
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 1000
+        path: '/socket.io/',
+        transports: ['polling', 'websocket'],
+        upgrade: true,
+        rememberUpgrade: true,
+        secure: true,
+        rejectUnauthorized: false,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+        autoConnect: true
         });
 
         // Chart.js yapılandırması
