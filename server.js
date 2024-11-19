@@ -1,10 +1,23 @@
 const express = require('express');
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const server = require('http').createServer(app);
+const { Server } = require('socket.io');
 const axios = require('axios');
 const path = require('path');
 
+app.use(express.static('public'));
+app.use(express.json());
+
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        credentials: true
+    },
+    transports: ['polling'],
+    pingTimeout: 60000,
+    pingInterval: 25000
+});
 // Static dosyaları serve et
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -54,7 +67,11 @@ io.on('connection', async (socket) => {
 });
 
 // Server'ı başlat
-const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-    console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    server.listen(PORT, () => {
+        console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
+    });
+}
+
+module.exports = server;

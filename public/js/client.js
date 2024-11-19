@@ -1,11 +1,12 @@
 const socket = io({
-    path: '/socket.io/',
-    transports: ['websocket', 'polling'],
-    autoConnect: true,
+    transports: ['polling'], // Sadece polling kullan
     reconnection: true,
+    reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
-    reconnectionAttempts: Infinity
+    timeout: 20000,
+    autoConnect: true,
+    forceNew: true
 });
 
 const ctx = document.getElementById('myChart').getContext('2d');
