@@ -104,23 +104,6 @@
     </div>
     </div>
     <script src="./js/client.js"></script>
-    <script>
-        document.getElementById('tab-group').addEventListener('bcm-tab-change', (e) => {
-            e.preventDefault();
-            socket?.emit('changeTab', e.detail);
-        });
-      
-        window.addEventListener('bcmAnalyticsEvent', (event) => {
-            const payload = event.detail;
-            console.log('bcmAnalyticsEvent', payload);
-            socket.emit('updateData', payload);
-        });
-
-        function submit() {
-            const form = document.getElementById('user-form');
-            form.submit();
-        }
-    </script>
 </body>
 </html>
 

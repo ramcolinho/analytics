@@ -98,3 +98,13 @@ window.addEventListener('bcmAnalyticsEvent', (event) => {
     const payload = event.detail;
     socket.emit('updateData', payload);
 });
+
+document.getElementById('tab-group').addEventListener('bcm-tab-change', (e) => {
+    e.preventDefault();
+    socket?.emit('changeTab', e.detail);
+});
+
+function submit() {
+    const form = document.getElementById('user-form');
+    form.submit();
+}
