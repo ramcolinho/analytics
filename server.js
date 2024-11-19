@@ -6,7 +6,7 @@ const axios = require('axios');
 const path = require('path');
 
 // Static dosyaları serve et
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Ana sayfa route'u
 app.get('/', (req, res) => {
