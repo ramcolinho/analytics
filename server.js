@@ -15,9 +15,9 @@ app.use(express.json());
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://bromcom-analytics.vercel.app',
+        origin: 'http://localhost:3000',
     },
-    transports: ['polling'],
+    transports: ['websocket','polling'],
     pingTimeout: 60000,
     pingInterval: 25000
 });
