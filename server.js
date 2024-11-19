@@ -1,30 +1,44 @@
 const express = require('express');
 const app = express();
-const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+const { Server } = require('socket.io');
 const axios = require('axios');
 const path = require('path');
 
+// CORS middleware
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
+
 // Static dosyaları serve et
 app.use(express.static('public'));
+app.use(express.json());
+
+const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
 
 // Ana sayfa route'u
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
+// Server instance'ını oluştur
+const server = require('http').createServer(app);
+
+// Socket.IO setup
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    },
+    path: '/socket.io/'
+});
 
 // Socket.IO bağlantı yönetimi
 io.on('connection', async (socket) => {
     console.log('Bir kullanıcı bağlandı');
 
-    // Bağlantı kurulduğunda mevcut verileri gönder
     try {
         const response = await axios.get(MOCK_API_URL);
         socket.emit('initialData', response.data);
@@ -34,8 +48,7 @@ io.on('connection', async (socket) => {
 
     socket.on('updateData', async (data) => {
         try {
-           const payload = data;
-
+            const payload = data;
             const response = await axios.post(MOCK_API_URL, payload);
             io.emit('dataUpdated', response.data);
         } catch (error) {
@@ -57,7 +70,7 @@ io.on('connection', async (socket) => {
     });
 });
 
-// Development modunda server'ı başlat
+// Lokal geliştirme için
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
@@ -66,4 +79,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Vercel için export
-module.exports = server;
+module.exports = app;

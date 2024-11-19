@@ -1,7 +1,11 @@
 const socket = io({
     path: '/socket.io/',
     transports: ['websocket', 'polling'],
-    secure: true
+    autoConnect: true,
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: Infinity
 });
 
 const ctx = document.getElementById('myChart').getContext('2d');
