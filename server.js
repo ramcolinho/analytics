@@ -12,11 +12,7 @@ const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
-        credentials: true
-    },
-    transports: ['polling'],
-    pingTimeout: 60000,
-    pingInterval: 25000
+    }
 });
 // Static dosyaları serve et
 app.use(express.static(path.join(__dirname, "public")));
