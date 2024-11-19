@@ -5,76 +5,86 @@ const cors = require('cors');
 const http = require('http');
 const axios = require('axios');
 const path = require('path');
+
+// Express middleware
 app.use(cors());
-
-const server = http.createServer(app);
-
-
 app.use(express.static('public'));
 app.use(express.json());
 
+// Create HTTP server
+const server = http.createServer(app);
+
+// Socket.IO setup
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: process.env.NODE_ENV === 'production' 
+            ? process.env.ALLOWED_ORIGIN || '*'
+            : 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+        credentials: true
     },
-    transports: ['websocket','polling'],
+    transports: ['websocket', 'polling'],
     pingTimeout: 60000,
     pingInterval: 25000
 });
-// Static dosyaları serve et
-app.use(express.static(path.join(__dirname, "public")));
 
-// Ana sayfa route'u
+// Constants
+const PORT = process.env.PORT || 3000;
+const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
+
+// Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const MOCK_API_URL = 'https://673af0d9339a4ce44519d21a.mockapi.io/bromcom-analytics/v1/analytics';
-
-// Socket.IO bağlantı yönetimi
+// Socket event handlers
 io.on('connection', async (socket) => {
-    console.log('Bir kullanıcı bağlandı');
+    console.log('Client connected:', socket.id);
 
-    // Bağlantı kurulduğunda mevcut verileri gönder
+    // Send initial data
     try {
         const response = await axios.get(MOCK_API_URL);
         socket.emit('initialData', response.data);
     } catch (error) {
-        console.error('Veri çekme hatası:', error);
+        console.error('Initial data fetch error:', error.message);
     }
 
+    // Handle data updates
     socket.on('updateData', async (data) => {
         try {
-           const payload = data;
-
-            const response = await axios.post(MOCK_API_URL, payload);
+            const response = await axios.post(MOCK_API_URL, data);
             io.emit('dataUpdated', response.data);
         } catch (error) {
-            console.error('Veri güncelleme hatası:', error);
+            console.error('Update error:', error.message);
+            socket.emit('error', 'Failed to update data');
         }
     });
 
+    // Handle tab changes
     socket.on('changeTab', (tab) => {
         io.emit('tabChanged', tab);
     });
 
+    // Handle data requests
     socket.on('getData', async () => {
         try {
             const response = await axios.get(MOCK_API_URL);
             socket.emit('initialData', response.data);
         } catch (error) {
-            console.error('Veri çekme hatası:', error);
+            console.error('Data fetch error:', error.message);
+            socket.emit('error', 'Failed to fetch data');
         }
     });
 
+    // Handle disconnection
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
 });
 
-// Server'ı başlat
-if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, () => {
-        console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
-    });
-}
+// Start server
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
 module.exports = server;
