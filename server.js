@@ -19,7 +19,7 @@
           methods: ['GET', 'POST']
       },
       transports: ['polling', 'websocket'],
-      pingInterval: 10000,      // Ping süresini düşür
+      pingInterval: 10000,   
       pingTimeout: 5000
   });
   
@@ -62,6 +62,3 @@
   server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
   });
-  
-  // public/js/client.js içeriği aynı kalacak
-  // public/index.html içeriği aynı kalacak
