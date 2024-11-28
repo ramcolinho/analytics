@@ -1,120 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time Analytics</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="https://designsystem.bromcomcloud.com/demo/analytics/bromcom-ui/bromcom-ui.esm.js"></script>
-    <link rel="stylesheet" href="https://designsystem.bromcomcloud.com/demo/analytics/bromcom-ui/bromcom-ui.css">
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-          corePlugins: {
-            preflight: false,
-          }
-        }
-      </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="https://designsystem.bromcomcloud.com/demo/analytics/dist/bromcom-ui/bromcom-ui.esm.js"></script>
+    <link rel="stylesheet" href="https://designsystem.bromcomcloud.com/demo/analytics/dist/bromcom-ui/bromcom-ui.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
-<body class="bg-gray-50">
-    <div class="container mx-auto p-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Sol Taraf - Form ve Grafikler -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <bcm-tab-group id="tab-group" size="medium" active="1" color="blue">
-                    <!-- Form Tab -->
-                    <bcm-tab-item>
-                        <bcm-tab-item-header>Form</bcm-tab-item-header>
-                        <div class="p-4">
-                            <bcm-form id="user-form" validation name="user-form">
-                                <div class="space-y-4">
-                                    <bcm-input full-width name="name" label="Name" required></bcm-input>
-                                    <bcm-input full-width name="surname" label="Surname" required></bcm-input>
-                                </div>
-                                <div class="mt-4">
-                                    <bcm-button id="prev-button" onclick="submit()">Submit</bcm-button>
-                                </div>
-                            </bcm-form>
-                        </div>
-                    </bcm-tab-item>
-<bcm-tab-item>
-    <bcm-tab-item-header>Stepper</bcm-tab-item-header>
-    <div class="p-4 space-y-6">
-        <!-- Stepper -->
-        <bcm-stepper id="stepperWithDom" active="1" linear>
-            <bcm-step id="user-info" icon="fal fa-user" title="Person" description="Person information">
-                <bcm-form id="user-form" validation name="user-form">
-                    <div class="space-y-4">
-                        <bcm-input full-width name="name" label="Name" required></bcm-input>
-                        <bcm-input full-width name="surname" label="Surname" required></bcm-input>
-                    </div>
-                </bcm-form>
-            </bcm-step>
-            
-            <bcm-step id="contact-info" icon="fal fa-phone-plus" disabled title="Contact" description="Enter Contact Information">
-                <bcm-form id="contact-form">
-                    <div class="space-y-4">
-                        <bcm-input full-width name="email" label="Email" type="email" required></bcm-input>
-                        <bcm-input full-width name="phone" label="Phone" type="tel" required></bcm-input>
-                    </div>
-                </bcm-form>
-            </bcm-step>
-            
-            <bcm-step id="address-info" icon="fal fa-map-marker" title="Address" description="Enter Address Information">
-                <bcm-form id="address-form" validation>
-                    <div class="space-y-4">
-                        <bcm-input full-width name="street" label="Street" required></bcm-input>
-                        <bcm-input full-width name="city" label="City" required></bcm-input>
-                        <bcm-input full-width name="zip" label="ZIP" required></bcm-input>
-                    </div>
-                </bcm-form>
-            </bcm-step>
-        </bcm-stepper>
-
-        <!-- Navigation Buttons -->
-        <div class="flex gap-4 mt-6">
-            <bcm-button id="prev-button" onclick="prev()">Prev</bcm-button>
-            <bcm-button id="next-button" onclick="next()">Next</bcm-button>
+<body class="bg-gray-100 h-screen">
+    <!-- Header -->
+    <header class="w-full shadow-lg bg-white">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div></div>
+            <bcm-segment-picker id="segmented-picker" default-value="1" class="bg-slate-50">
+                <bcm-segment-picker-item value="1" text="Form"></bcm-segment-picker-item>
+                <bcm-segment-picker-item value="2" text="Widgets"></bcm-segment-picker-item>
+                <bcm-segment-picker-item value="3" text="Tooltip"></bcm-segment-picker-item>
+                <bcm-segment-picker-item value="4" text="Feedback"></bcm-segment-picker-item>
+                <bcm-segment-picker-item value="5" text="Customization Form"></bcm-segment-picker-item>
+            </bcm-segment-picker>
+            <bcm-dropdown id="dropdown" type="split" color="emerald" icon="far fa-user">
+                <span>Users</span>
+                <bcm-items>
+                    <bcm-item id="index" icon="far fa-user" text="Martin" active></bcm-item>
+                    <bcm-item id="behaviour" icon="far fa-user" text="Paul"></bcm-item>
+                    <bcm-item id="assignments" icon="far fa-user" text="Ashlee"></bcm-item>
+                </bcm-items>
+            </bcm-dropdown>
         </div>
+    </header>
 
-        <!-- Process Buttons -->
-        <div class="flex gap-4 mt-4 border-t pt-4">
-            <bcm-button process-start-id="step1-start">Start Process</bcm-button>
-            <bcm-button status="success" process-end-id="step1-end">End Process</bcm-button>
-        </div>
-    </div>
-</bcm-tab-item>
-
-                    <!-- Tooltip Tab -->
-                    <bcm-tab-item>
-                        <bcm-tab-item-header>Tooltip</bcm-tab-item-header>
-                        <div class="p-4">
-                            <div class="flex flex-row items-center justify-center gap-3">
-                            <bcm-tooltip message="Register Form Info" trigger="hover" id="register">
-                                <bcm-button>Register Info</bcm-button>
-                            </bcm-tooltip>
-                            <bcm-tooltip message="Teacher Dashboard  Info" trigger="hover" id="teacher">
-                                <bcm-button>Teacher Dashboard Info</bcm-button>
-                            </bcm-tooltip>
-                            <bcm-tooltip message="Time Table Info" trigger="hover" id="time-table">
-                                <bcm-button>TimeTable Info</bcm-button>
-                            </bcm-tooltip>
-                        </div>
-                    </div>
-                    </bcm-tab-item>
-                </bcm-tab-group>
-
-                <div class="mt-6">
-                    <canvas id="myChart" class="w-full max-h-[400px]"></canvas>
-                </div>
+    <main class="container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div id="content-panel" class="bg-white rounded-lg p-6 overflow-auto h-full	 ">
             </div>
-
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4">Analytics Data</h2>
-                <div class="max-h-[750px] overflow-y-auto">
-                    <table class="min-w-full table-auto w-full">
+            <div class="grid grid-rows-2 gap-4 h-full">
+                <div class="bg-white rounded-lg p-6 overflow-auto h-[400px]">
+                    <table class="min-w-full table-auto">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -125,9 +53,18 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="bg-white rounded-lg p-6 h-[400px] flex items-center justify-center">
+                    <canvas id="pieChart" class="w-full h-full"></canvas>
+                    <canvas id="barChart" class="w-full h-full"></canvas>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <script src="./js/client.js"></script>
+    <script>
+        window.userName = 'Martin';
+    </script>
 </body>
-<script src="./js/client.js"></script>
 </html>

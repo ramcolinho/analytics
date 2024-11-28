@@ -44,6 +44,23 @@
               console.error('Error:', error.message);
           }
       });
+
+      socket.on('editData', async (data) => {
+        try {
+        const resp = await axios.get(MOCK_API_URL);
+        console.log('data', data);
+           const getSingleData =  resp.data.find((item) => item.additionalData.sessionId === data.additionalData.sessionId && item.additionalData.cardType === data.additionalData.cardType);
+           if(getSingleData){
+            const response = await axios.put(MOCK_API_URL + '/' + getSingleData.id, data);
+            io.emit('dataUpdated', response.data);
+            } else {
+                const response = await axios.post(MOCK_API_URL, data);
+                io.emit('dataUpdated', response.data);
+            }
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    });
   
       socket.on('changeTab', (tab) => {
           io.emit('tabChanged', tab);
