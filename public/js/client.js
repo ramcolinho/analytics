@@ -21,6 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionId = localStorage.getItem("sessionId");
   }
 
+  activeTab ??= "Form";
+  const contentPanel = document.getElementById("content-panel");
+  contentPanel.innerHTML = contentMap[activeTab];
+  formChart();
+
 });
 
 const pieCtx = document.getElementById("pieChart").getContext("2d");
@@ -30,7 +35,7 @@ const tabs = {
   2: "Widgets",
   3: "Tooltip",
   4: "Feedback",
-  5: "Custom",
+  5: "Settings",
 };
 let activeTab;
 
@@ -39,6 +44,7 @@ let stepperData = [];
 let tooltipData = [];
 let favoriteData = [];
 let feedbackData = [];
+let settingsData = [];
 
 let errorCounts = {
   schoolId: 0,
@@ -203,7 +209,52 @@ const contents = {
     </div>
   </bcm-form>
 </div>`,
-  5: `<div>Customization Form Content</div>`,
+  5: `
+<div class="w-full">
+  <div class="w-full border rounded-lg">
+    <div class="py-3 px-6 text-lg font-semibold border-b">
+      <span>Customization</span>
+    </div>
+    <div class="flex flex-col p-6 gap-4">
+      <div>
+        <div class="text-lg font-semibold">
+          <span>Theme</span>
+        </div>
+        <div class="text-md text-gray-600">
+          <span>Customise how system looks on 
+  your device</span>
+        </div>
+      </div>
+      <div>
+         <bcm-segment-picker default-value="blue" id="color-picker" kind="outline">
+            <bcm-segment-picker-item value="blue">
+                <div class="h-5 w-5 rounded-full bg-blue-500"></div>
+                Blue
+            </bcm-segment-picker-item>
+            <bcm-segment-picker-item value="emerald">
+                <div class="h-5 w-5 rounded-full bg-emerald-500"></div>
+                Emerald
+            </bcm-segment-picker-item>
+            <bcm-segment-picker-item value="amber">
+                <div class="h-5 w-5 rounded-full bg-amber-500"></div>
+                Amber
+            </bcm-segment-picker-item>
+            <bcm-segment-picker-item value="red">
+                <div class="h-5 w-5 rounded-full bg-red-500"></div>
+                Red
+            </bcm-segment-picker-item>
+        </bcm-segment-picker>
+      </div>
+    </div>
+  
+  </div>
+  <div class="flex flex-row justify-end p-6">
+    <bcm-button icon="fa-solid fa-save" onclick="saveSettings()" class="mt-4" >
+      Save
+    </bcm-button>
+  </div>
+</div>
+  `,
 };
 
 function createWidgetHTML(widget) {
@@ -230,7 +281,7 @@ const contentMap = {
   Widgets: contents[2],
   Tooltip: contents[3],
   Feedback: contents[4],
-  Custom: contents[5],
+  Settings: contents[5],
 };
 
 const pieChart = new Chart(pieCtx, {
@@ -301,11 +352,13 @@ socket.on("initialData", (data) => {
   tooltipData = data.filter((item) => item.eventType == "TOOLTIP");
   favoriteData = data.filter((item) => item.eventType == "favorites");
   feedbackData = data.filter((item) => item.eventType == "feedback");
+  settingsData = data.filter((item) => item.eventType == "settings");
+
   activeTab ??= "Form";
   console.log("Update Edildi");
 
-  const contentPanel = document.getElementById("content-panel");
-  contentPanel.innerHTML = contentMap[activeTab];
+  // const contentPanel = document.getElementById("content-panel");
+  // contentPanel.innerHTML = contentMap[activeTab];
 
   if (activeTab == "Form") {
     formChart();
@@ -323,9 +376,13 @@ socket.on("initialData", (data) => {
     feedbackChart();
   }
 
-  if (activeTab == "Custom") {
-    updateTable([], "Custom", "success");
+  if (activeTab == "Settings") {
+    settingsChart();
   }
+
+  // if (activeTab == "Custom") {
+  //   updateTable([], "Custom", "success");
+  // }
 
   pieChart.update();
   barChart.update();
@@ -624,16 +681,6 @@ function selectEmoji(value, element) {
 }
 
 document
-  .querySelector("bcm-dropdown")
-  .addEventListener("bcm-dropdown-change", (event) => {
-    event.preventDefault();
-    loadCount++;
-    window.userName = event.detail.text;
-    if (loadCount > 1) {
-      socket.emit("getData");
-    }
-  });
-document
   .querySelector("bcm-segment-picker")
   .addEventListener("bcm-change", (event) => {
     const selectedValue = event.detail;
@@ -654,9 +701,12 @@ document
       tooltipChart();
     }  else if (activeTab == "Feedback") {
         feedbackChart();
-    } else if (activeTab == "Custom") {
-      updateTable([], "Custom", "success");
-    }
+    } else if (activeTab == "Settings") {
+      settingsChart();
+    } 
+    // else if (activeTab == "Custom") {
+    //   updateTable([], "Custom", "success");
+    // }
     pieChart.update();
     barChart.update();
   });
@@ -678,8 +728,33 @@ function shareFeedback() {
   });
 }
 
-function test() {
-  window.bcm.track("card", "favorites", {
-    custom: "custom",
+function saveSettings() {
+  const colorPicker = document.getElementById("color-picker");
+  const color = colorPicker.value;
+  
+  window.bcm.track("settings", "settings", {
+    color,
+    sessionId
   });
+}
+
+function settingsChart() {
+  barChart.canvas.style.display = "none";
+  pieChart.canvas.style.display = "block";
+  pieChart.data.datasets[0].label = "Settings";
+  pieChart.data.labels = ["blue", "emerald", "amber", "red"];
+  const blue = settingsData.filter(
+    (item) => item.additionalData.color === "blue"
+  );
+  const emerald = settingsData.filter(
+    (item) => item.additionalData.color === "emerald"
+  );
+  const amber = settingsData.filter(
+    (item) => item.additionalData.color === "amber"
+  );
+  const red = settingsData.filter(
+    (item) => item.additionalData.color === "red"
+  );
+  pieChart.data.datasets[0].data = [blue.length, emerald.length, amber.length, red.length];
+  updateTable(settingsData, "Settings", "success");
 }
