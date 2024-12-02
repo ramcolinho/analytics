@@ -239,28 +239,8 @@ function updateTable(data, type, status) {
     .map(
       (item) => `
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${
-              item.additionalData.sessionId
-            }</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${
-              item.eventType
-            }</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${type}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  status === "success"
-                    ? "bg-green-100 text-green-800"
-                    : status === "error"
-                    ? "bg-red-100 text-red-800"
-                    : status === "warning"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : status === "info"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }">
-                    ${status || "pending"}
-                </span>
-            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.sessionId}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.type}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${new Date(item.timestamp || Date.now()).toLocaleString()}
             </td>
@@ -295,7 +275,12 @@ function feedbackChart() {
   pieChart.data.datasets[0].label = "Feedback";
   pieChart.data.labels = ["Very Sad", "Sad", "Neutral", "Happy", "Very Happy"];
   pieChart.data.datasets[0].data = [verySad.length, sad.length, neutral.length, happy.length, veryHappy.length];
-  updateTable(feedbackData, "Feedback", "success");
+  const feedbackDataTable = feedbackData.map((item) => ({
+    sessionId: item.additionalData.sessionId,
+    type: item.additionalData.feedback,
+    timestamp: new Date(item.timestamp || Date.now()).toLocale
+  }));
+  updateTable(feedbackDataTable);
 }
 
 function fovoriatesChart() {
@@ -332,7 +317,13 @@ function fovoriatesChart() {
   barChart.data.labels = ["Calendar", "Table", "Chart", "Notification"];
 
   barChart.data.datasets[0].data = [totalCalendarWidgetFavorites, totalTableWidgetFavorites, totalCardWidgetFavorites, totalNotificationWidgetFavorites];
-  updateTable(favoriteData, "Widgets", "success");
+
+  const favoriteDataTable = favoriteData.map((item) => ({
+    sessionId: item.additionalData.sessionId,
+    type: item.additionalData.cardType,
+    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
+  }));
+  updateTable(favoriteDataTable);
 }
 
 function formChart() {
@@ -353,14 +344,12 @@ function formChart() {
     });
   });
   pieChart.data.datasets[0].data = [errorCounts.schoolId, errorCounts.userName, errorCounts.password];
-  updateTable(formData, "Form", "error");
-}
-
-function stepperChart() {
-  chart.data.datasets[0].label = "User Registration Stepper Completed Total";
-  chart.data.labels = ["User Registration Stepper"];
-  chart.data.datasets[0].data = [stepperData.length];
-  updateTable(stepperData, "Stepper", "info");
+  const formDataTable = formData.map((item) => ({
+    sessionId: item.additionalData.sessionId,
+    type: item.eventType,
+    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
+  }))
+  updateTable(formDataTable);
 }
 
 function tooltipChart() {
@@ -375,7 +364,12 @@ function tooltipChart() {
   pieChart.data.datasets[0].label = "Tooltip Opened";
   pieChart.data.labels = ["Report Title Tooltip", "Report Description Tooltip", "Folder Name Tooltip", "Access Permissions Tooltip"];
   pieChart.data.datasets[0].data = [reportTitle.length, reportDescription.length, folderName.length, accessPermissions.length];
-  updateTable(tooltipData, "Tooltip", "success");
+  const tooltipDataTable = tooltipData.map((item) => ({
+    sessionId: item.additionalData.sessionId,
+    type: item.additionalData.message,
+    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
+  }));
+  updateTable(tooltipDataTable);
 }
 
 window.addEventListener("bcmAnalyticsEvent", (event) => {
@@ -485,5 +479,10 @@ function settingsChart() {
   const amber = settingsData.filter((item) => item.additionalData.color === "amber");
   const red = settingsData.filter((item) => item.additionalData.color === "red");
   pieChart.data.datasets[0].data = [blue.length, emerald.length, amber.length, red.length];
-  updateTable(settingsData, "Settings", "success");
+  const settingsDataTable = settingsData.map((item) => ({
+    sessionId: item.additionalData.sessionId,
+    type: item.additionalData.color,
+    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
+  }));
+  updateTable(settingsDataTable);
 }
