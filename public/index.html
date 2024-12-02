@@ -1,70 +1,76 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Real-time Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="https://designsystem.bromcomcloud.com/demo/analytics/dist/bromcom-ui/bromcom-ui.esm.js"></script>
-    <link rel="stylesheet" href="https://designsystem.bromcomcloud.com/demo/analytics/dist/bromcom-ui/bromcom-ui.css">
+    <link rel="stylesheet" href="https://designsystem.bromcomcloud.com/demo/analytics/dist/bromcom-ui/bromcom-ui.css" />
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-</head>
-<style>
+  </head>
+  <style>
     bcm-input bcm-label {
-        margin-bottom: 6px;
+      margin-bottom: 6px;
     }
     bcm-textarea bcm-label {
-        margin-bottom: 6px;
+      margin-bottom: 6px;
     }
-</style>
-<body class="bg-gray-100 h-screen">
-    <!-- Header -->
-    <header class="w-full shadow-lg bg-white">
-        <div class="container mx-auto px-4 py-4 flex justify-center items-center">
-            <bcm-segment-picker id="segmented-picker" default-value="1" class="bg-slate-50">
-                <bcm-segment-picker-item value="1" text="Form"></bcm-segment-picker-item>
-                <bcm-segment-picker-item value="2" text="Widgets"></bcm-segment-picker-item>
-                <bcm-segment-picker-item value="3" text="Tooltip"></bcm-segment-picker-item>
-                <bcm-segment-picker-item value="4" text="Feedback"></bcm-segment-picker-item>
-                <bcm-segment-picker-item value="5" text="Customization Form"></bcm-segment-picker-item>
-            </bcm-segment-picker>
-        </div>
-    </header>
-
-
+  </style>
+  <body class="bg-gray-100 h-screen">
+    <div class="container mx-auto px-10 pt-10">
+      <header class="w-full py-5">
+        <bcm-tab-group id="segmented-picker" active="1">
+          <bcm-tab-item>
+            <bcm-tab-item-header>Form</bcm-tab-item-header>
+          </bcm-tab-item>
+          <bcm-tab-item>
+            <bcm-tab-item-header>Favorite</bcm-tab-item-header>
+          </bcm-tab-item>
+          <bcm-tab-item>
+            <bcm-tab-item-header>Tooltip</bcm-tab-item-header>
+          </bcm-tab-item>
+          <bcm-tab-item>
+            <bcm-tab-item-header>Feedback</bcm-tab-item-header>
+          </bcm-tab-item>
+          <bcm-tab-item>
+            <bcm-tab-item-header>Customization</bcm-tab-item-header>
+          </bcm-tab-item>
+        </bcm-tab-group>
+      </header>
+    </div>
     <main class="container mx-auto p-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div id="content-panel" class="bg-white rounded-lg p-6 overflow-auto h-full	 ">
-            </div>
-            <div class="grid grid-rows-2 gap-4 h-full">
-                <div class="bg-white rounded-lg p-6 overflow-auto h-[400px]">
-                    <table class="min-w-full table-auto">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200" id="analytics-table">
-                        </tbody>
-                    </table>
-                </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="content-panel" class="bg-white rounded-lg p-6 overflow-auto h-full border border-gray-300"></div>
+        
+        <div class="grid grid-rows-2 gap-4 h-full">
+          <div class="bg-gray-50 border border-gray-300 rounded-lg p-6 overflow-auto h-[400px]">
+            <table class="min-w-full table-auto">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200" id="analytics-table"></tbody>
+            </table>
+          </div>
 
-                <div class="bg-white rounded-lg p-6 h-[400px] flex items-center justify-center">
-                    <canvas id="pieChart" class="w-full h-full"></canvas>
-                    <canvas id="barChart" class="w-full h-full"></canvas>
-                </div>
-            </div>
+          <div class="bg-gray-50 border border-gray-300 rounded-lg p-6 h-[400px] flex items-center justify-center">
+            <canvas id="pieChart" class="w-full h-full"></canvas>
+            <canvas id="barChart" class="w-full h-full"></canvas>
+          </div>
         </div>
+      </div>
     </main>
 
     <script src="./js/client.js"></script>
     <script>
-        window.userName = 'Martin';
+      window.userName = "Martin";
     </script>
-</body>
+  </body>
 </html>

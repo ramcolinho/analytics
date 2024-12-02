@@ -1,9 +1,82 @@
-<div class="w-full space-y-4">
-  <bcm-input label="Report Title" tooltip="Report Title" value="Staff List - Autumn 2023" full-width></bcm-input>
+<section class="flex flex-col gap-10">
+  <div class="flex items-center justify-between p-6">
+    <h1 class="text-xl font-semibold">Playground</h1>
+    <bcm-link size="small" onclick="document.getElementById('modalTooltip').show()"
+      >How It Works? <i class="fa-regular fa-arrow-right"></i
+    ></bcm-link>
+  </div>
 
-  <bcm-input label="Report Description" tooltip="Report Description" value="Detailed Staff List of Autumn 2023" full-width></bcm-input>
+  <div class="w-full space-y-4">
+    <bcm-input
+      label="Report Title"
+      tooltip="Report Title"
+      value="Staff List - Autumn 2023"
+      full-width
+    ></bcm-input>
 
-  <bcm-input id="folder-name" label="Folder Name" tooltip="Folder Name" value="Modal Report" type="select" full-width></bcm-input>
+    <bcm-input
+      label="Report Description"
+      tooltip="Report Description"
+      value="Detailed Staff List of Autumn 2023"
+      full-width
+    ></bcm-input>
 
-  <bcm-input label="Access Permissions" tooltip="Access Permissions" value="Inherit Folder Permissions" type="select" full-width></bcm-input>
-</div>
+    <bcm-input
+      id="folder-name"
+      label="Folder Name"
+      tooltip="Folder Name"
+      value="Modal Report"
+      type="select"
+      full-width
+    ></bcm-input>
+
+    <bcm-input
+      label="Access Permissions"
+      tooltip="Access Permissions"
+      value="Inherit Folder Permissions"
+      type="select"
+      full-width
+    ></bcm-input>
+  </div>
+</section>
+
+<bcm-modal id="modalTooltip" size="small">
+  <bcm-modal-header>How It Works? (Tooltip)</bcm-modal-header>
+  <div class="p-6">
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Overview</h6>
+      <p>
+        It tracks and displays statistics, such as "who viewed which tip and how
+        many times," when hovering over the "information" icon on a form. It
+        provides valuable insights into user interactions and engagement with
+        tooltips.
+      </p>
+    </div>
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Playground</h6>
+      <p>
+        In this area, tooltips are displayed through an info icon, providing
+        instant access to viewing statistics for each tooltip.
+      </p>
+    </div>
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Analytics Data</h6>
+      <p>
+        The data generated in the Playground area is instantly displayed here in
+        a table format, complete with their corresponding statuses.
+      </p>
+    </div>
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Chart View</h6>
+      <p>
+        This section displays the graph data as percentage averages, presented
+        in a visually intuitive format to enhance clarity and support effortless
+        interpretation.
+      </p>
+    </div>
+  </div>
+  <bcm-modal-footer>
+    <bcm-button data-dismiss outline>Cancel</bcm-button>
+    <bcm-button data-dismiss>OK</bcm-button>
+  </bcm-modal-footer>
+</bcm-modal>

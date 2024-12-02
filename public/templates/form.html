@@ -1,12 +1,89 @@
-<div class="w-full mx-auto p-6">
-  <bcm-form id="user-form" validation class="bg-white rounded-lg shadow-sm p-6 space-y-4">
-    <bcm-input type="text" label="School ID" full-width name="schoolId" required></bcm-input>
-    <bcm-input type="text" label="Username" full-width name="userName" required></bcm-input>
-    <bcm-input type="password" label="Password" full-width name="password" password-toggle required></bcm-input>
-    <div class="flex items-center justify-between gap-3">
-      <bcm-checkbox no-margin no-caption>Remember Me</bcm-checkbox>
-      <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Forgotten Details?</a>
+<section class="flex flex-col gap-10">
+  <div class="flex items-center justify-between p-6">
+    <h1 class="text-xl font-semibold">Playground</h1>
+    <bcm-link size="small" onclick="document.getElementById('modalForm').show()"
+      >How It Works? <i class="fa-regular fa-arrow-right"></i
+    ></bcm-link>
+  </div>
+
+  <div class="w-full mx-auto p-6">
+    <bcm-form
+      id="user-form"
+      validation
+      class="bg-white rounded-lg shadow-sm p-6 space-y-4"
+    >
+      <bcm-input
+        type="text"
+        label="School ID"
+        full-width
+        name="schoolId"
+        required
+      ></bcm-input>
+      <bcm-input
+        type="text"
+        label="Username"
+        full-width
+        name="userName"
+        required
+      ></bcm-input>
+      <bcm-input
+        type="password"
+        label="Password"
+        full-width
+        name="password"
+        password-toggle
+        required
+      ></bcm-input>
+      <div class="flex items-center justify-between gap-3">
+        <bcm-checkbox no-margin no-caption>Remember Me</bcm-checkbox>
+        <a href="#" class="text-sm text-blue-600 hover:text-blue-800"
+          >Forgotten Details?</a
+        >
+      </div>
+      <bcm-button class="mt-4" full-width onclick="submit()">
+        Login
+      </bcm-button>
+    </bcm-form>
+  </div>
+</section>
+
+<bcm-modal id="modalForm" size="small">
+  <bcm-modal-header>How It Works? (Form)</bcm-modal-header>
+  <div class="p-6">
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Overview</h6>
+      <p>
+        This section provides an instant overview of error and success statuses
+        encountered while filling in form information, along with user-specific
+        statistics related to these statuses.
+      </p>
     </div>
-    <bcm-button class="mt-4" full-width onclick="submit()"> Login </bcm-button>
-  </bcm-form>
-</div>
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Playground</h6>
+      <p>
+        The playground is an interactive space featuring form elements, allowing
+        users to generate real-time data by modifying the information within
+        this area.
+      </p>
+    </div>
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Analytics Data</h6>
+      <p>
+        The data generated in the Playground area is instantly displayed here in
+        a table format, complete with their corresponding statuses.
+      </p>
+    </div>
+    <div class="mb-4">
+      <h6 class="font-semibold mb-1">Chart View</h6>
+      <p>
+        This section displays the graph data as percentage averages, presented
+        in a visually intuitive format to enhance clarity and support effortless
+        interpretation.
+      </p>
+    </div>
+  </div>
+  <bcm-modal-footer>
+    <bcm-button data-dismiss outline>Cancel</bcm-button>
+    <bcm-button data-dismiss>OK</bcm-button>
+  </bcm-modal-footer>
+</bcm-modal>
