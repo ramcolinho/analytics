@@ -25,7 +25,8 @@ async function loadTemplate(templateName) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (!localStorage.getItem("sessionId")) {
-    sessionId = "session_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    sessionId =
+      "session_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
     localStorage.setItem("sessionId", sessionId);
   } else {
     sessionId = localStorage.getItem("sessionId");
@@ -157,8 +158,20 @@ const pieChart = new Chart(pieCtx, {
       {
         label: "Real-time Analitik",
         data: [],
-        backgroundColor: ["rgba(147, 51, 234, 0.2)", "rgba(99, 102, 241, 0.2)", "rgba(34, 197, 94, 0.2)", "rgba(239, 68, 68, 0.2)", "rgba(124, 58, 237, 0.2)"],
-        borderColor: ["rgba(147, 51, 234, 1)", "rgba(99, 102, 241, 1)", "rgba(34, 197, 94, 1)", "rgba(239, 68, 68, 1)", "rgba(124, 58, 237, 1)"],
+        backgroundColor: [
+          "rgba(147, 51, 234, 0.2)",
+          "rgba(99, 102, 241, 0.2)",
+          "rgba(34, 197, 94, 0.2)",
+          "rgba(239, 68, 68, 0.2)",
+          "rgba(124, 58, 237, 0.2)",
+        ],
+        borderColor: [
+          "rgba(147, 51, 234, 1)",
+          "rgba(99, 102, 241, 1)",
+          "rgba(34, 197, 94, 1)",
+          "rgba(239, 68, 68, 1)",
+          "rgba(124, 58, 237, 1)",
+        ],
         borderWidth: 1,
       },
     ],
@@ -176,8 +189,20 @@ const barChart = new Chart(barCtx, {
       {
         label: "Real-time Analitik",
         data: [],
-        backgroundColor: ["rgba(147, 51, 234, 0.2)", "rgba(99, 102, 241, 0.2)", "rgba(34, 197, 94, 0.2)", "rgba(239, 68, 68, 0.2)", "rgba(124, 58, 237, 0.2)"],
-        borderColor: ["rgba(147, 51, 234, 1)", "rgba(99, 102, 241, 1)", "rgba(34, 197, 94, 1)", "rgba(239, 68, 68, 1)", "rgba(124, 58, 237, 1)"],
+        backgroundColor: [
+          "rgba(147, 51, 234, 0.2)",
+          "rgba(99, 102, 241, 0.2)",
+          "rgba(34, 197, 94, 0.2)",
+          "rgba(239, 68, 68, 0.2)",
+          "rgba(124, 58, 237, 0.2)",
+        ],
+        borderColor: [
+          "rgba(147, 51, 234, 1)",
+          "rgba(99, 102, 241, 1)",
+          "rgba(34, 197, 94, 1)",
+          "rgba(239, 68, 68, 1)",
+          "rgba(124, 58, 237, 1)",
+        ],
         borderWidth: 1,
       },
     ],
@@ -239,8 +264,12 @@ function updateTable(data, type, status) {
     .map(
       (item) => `
         <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.additionalData.sessionId}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.eventType}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${
+              item.additionalData.sessionId
+            }</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${
+              item.eventType
+            }</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${type}</td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -282,52 +311,127 @@ socket.on("dataUpdated", () => {
 function feedbackChart() {
   barChart.canvas.style.display = "none";
   pieChart.canvas.style.display = "block";
-  const verySad = feedbackData.filter((item) => item.additionalData.feedback === "verySad");
-  const sad = feedbackData.filter((item) => item.additionalData.feedback === "sad");
-  const neutral = feedbackData.filter((item) => item.additionalData.feedback === "neutral");
-  const happy = feedbackData.filter((item) => item.additionalData.feedback === "happy");
-  const veryHappy = feedbackData.filter((item) => item.additionalData.feedback === "veryHappy");
+  const verySad = feedbackData.filter(
+    (item) => item.additionalData.feedback === "verySad"
+  );
+  const sad = feedbackData.filter(
+    (item) => item.additionalData.feedback === "sad"
+  );
+  const neutral = feedbackData.filter(
+    (item) => item.additionalData.feedback === "neutral"
+  );
+  const happy = feedbackData.filter(
+    (item) => item.additionalData.feedback === "happy"
+  );
+  const veryHappy = feedbackData.filter(
+    (item) => item.additionalData.feedback === "veryHappy"
+  );
 
   pieChart.data.datasets[0].label = "Feedback";
   pieChart.data.labels = ["Very Sad", "Sad", "Neutral", "Happy", "Very Happy"];
-  pieChart.data.datasets[0].data = [verySad.length, sad.length, neutral.length, happy.length, veryHappy.length];
+  pieChart.data.datasets[0].data = [
+    verySad.length,
+    sad.length,
+    neutral.length,
+    happy.length,
+    veryHappy.length,
+  ];
   updateTable(feedbackData, "Feedback", "success");
 }
 
 function fovoriatesChart() {
   pieChart.canvas.style.display = "none";
   barChart.canvas.style.display = "block";
-  const getActiveUserNameFavorites = favoriteData.filter((item) => item.additionalData.sessionId === sessionId);
-  const isCalendarWidgetFavorite = getActiveUserNameFavorites.find((item) => item.additionalData.cardType == "calendar-widget" && item.additionalData.selected === true);
-  const isTableWidgetFavorite = getActiveUserNameFavorites.find((item) => item.additionalData.cardType == "table-widget" && item.additionalData.selected === true);
-  const isChartdWidgetFavorite = getActiveUserNameFavorites.find((item) => item.additionalData.cardType == "chart-widget" && item.additionalData.selected === true);
-  const isNotificationWidgetFavorite = getActiveUserNameFavorites.find((item) => item.additionalData.cardType == "notification-widget" && item.additionalData.selected === true);
+  const getActiveUserNameFavorites = favoriteData.filter(
+    (item) => item.additionalData.sessionId === sessionId
+  );
+  const isCalendarWidgetFavorite = getActiveUserNameFavorites.find(
+    (item) =>
+      item.additionalData.cardType == "calendar-widget" &&
+      item.additionalData.selected === true
+  );
+  const isTableWidgetFavorite = getActiveUserNameFavorites.find(
+    (item) =>
+      item.additionalData.cardType == "table-widget" &&
+      item.additionalData.selected === true
+  );
+  const isChartdWidgetFavorite = getActiveUserNameFavorites.find(
+    (item) =>
+      item.additionalData.cardType == "chart-widget" &&
+      item.additionalData.selected === true
+  );
+  const isNotificationWidgetFavorite = getActiveUserNameFavorites.find(
+    (item) =>
+      item.additionalData.cardType == "notification-widget" &&
+      item.additionalData.selected === true
+  );
 
-  const totalCalendarWidgetFavorites = favoriteData.filter((item) => item.additionalData.cardType === "calendar-widget" && item.additionalData.selected === true).length;
-  const totalTableWidgetFavorites = favoriteData.filter((item) => item.additionalData.cardType === "table-widget" && item.additionalData.selected === true).length;
-  const totalCardWidgetFavorites = favoriteData.filter((item) => item.additionalData.cardType === "chart-widget" && item.additionalData.selected === true).length;
-  const totalNotificationWidgetFavorites = favoriteData.filter((item) => item.additionalData.cardType === "notification-widget" && item.additionalData.selected === true).length;
+  const totalCalendarWidgetFavorites = favoriteData.filter(
+    (item) =>
+      item.additionalData.cardType === "calendar-widget" &&
+      item.additionalData.selected === true
+  ).length;
+  const totalTableWidgetFavorites = favoriteData.filter(
+    (item) =>
+      item.additionalData.cardType === "table-widget" &&
+      item.additionalData.selected === true
+  ).length;
+  const totalCardWidgetFavorites = favoriteData.filter(
+    (item) =>
+      item.additionalData.cardType === "chart-widget" &&
+      item.additionalData.selected === true
+  ).length;
+  const totalNotificationWidgetFavorites = favoriteData.filter(
+    (item) =>
+      item.additionalData.cardType === "notification-widget" &&
+      item.additionalData.selected === true
+  ).length;
 
   if (isCalendarWidgetFavorite) {
-    document.getElementById("calendar-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("calendar-widget").querySelector("svg").setAttribute("fill", "currentColor");
+    document
+      .getElementById("calendar-widget")
+      .classList.add("active", "text-yellow-400");
+    document
+      .getElementById("calendar-widget")
+      .querySelector("svg")
+      .setAttribute("fill", "currentColor");
   }
   if (isTableWidgetFavorite) {
-    document.getElementById("table-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("table-widget").querySelector("svg").setAttribute("fill", "currentColor");
+    document
+      .getElementById("table-widget")
+      .classList.add("active", "text-yellow-400");
+    document
+      .getElementById("table-widget")
+      .querySelector("svg")
+      .setAttribute("fill", "currentColor");
   }
   if (isChartdWidgetFavorite) {
-    document.getElementById("chart-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("chart-widget").querySelector("svg").setAttribute("fill", "currentColor");
+    document
+      .getElementById("chart-widget")
+      .classList.add("active", "text-yellow-400");
+    document
+      .getElementById("chart-widget")
+      .querySelector("svg")
+      .setAttribute("fill", "currentColor");
   }
   if (isNotificationWidgetFavorite) {
-    document.getElementById("notification-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("notification-widget").querySelector("svg").setAttribute("fill", "currentColor");
+    document
+      .getElementById("notification-widget")
+      .classList.add("active", "text-yellow-400");
+    document
+      .getElementById("notification-widget")
+      .querySelector("svg")
+      .setAttribute("fill", "currentColor");
   }
   barChart.data.datasets[0].label = "User Favorites";
   barChart.data.labels = ["Calendar", "Table", "Chart", "Notification"];
 
-  barChart.data.datasets[0].data = [totalCalendarWidgetFavorites, totalTableWidgetFavorites, totalCardWidgetFavorites, totalNotificationWidgetFavorites];
+  barChart.data.datasets[0].data = [
+    totalCalendarWidgetFavorites,
+    totalTableWidgetFavorites,
+    totalCardWidgetFavorites,
+    totalNotificationWidgetFavorites,
+  ];
   updateTable(favoriteData, "Widgets", "success");
 }
 
@@ -348,7 +452,11 @@ function formChart() {
       if (error?.password) errorCounts.password++;
     });
   });
-  pieChart.data.datasets[0].data = [errorCounts.schoolId, errorCounts.userName, errorCounts.password];
+  pieChart.data.datasets[0].data = [
+    errorCounts.schoolId,
+    errorCounts.userName,
+    errorCounts.password,
+  ];
   updateTable(formData, "Form", "error");
 }
 
@@ -362,15 +470,33 @@ function stepperChart() {
 function tooltipChart() {
   barChart.canvas.style.display = "none";
   pieChart.canvas.style.display = "block";
-  const reportTitle = tooltipData.filter((item) => item.additionalData.message === "Report Title");
-  const reportDescription = tooltipData.filter((item) => item.additionalData.message === "Report Description");
-  const folderName = tooltipData.filter((item) => item.additionalData.message === "Folder Name");
+  const reportTitle = tooltipData.filter(
+    (item) => item.additionalData.message === "Report Title"
+  );
+  const reportDescription = tooltipData.filter(
+    (item) => item.additionalData.message === "Report Description"
+  );
+  const folderName = tooltipData.filter(
+    (item) => item.additionalData.message === "Folder Name"
+  );
 
-  const accessPermissions = tooltipData.filter((item) => item.additionalData.message === "Access Permissions");
+  const accessPermissions = tooltipData.filter(
+    (item) => item.additionalData.message === "Access Permissions"
+  );
 
   pieChart.data.datasets[0].label = "Tooltip Opened";
-  pieChart.data.labels = ["Report Title Tooltip", "Report Description Tooltip", "Folder Name Tooltip", "Access Permissions Tooltip"];
-  pieChart.data.datasets[0].data = [reportTitle.length, reportDescription.length, folderName.length, accessPermissions.length];
+  pieChart.data.labels = [
+    "Report Title Tooltip",
+    "Report Description Tooltip",
+    "Folder Name Tooltip",
+    "Access Permissions Tooltip",
+  ];
+  pieChart.data.datasets[0].data = [
+    reportTitle.length,
+    reportDescription.length,
+    folderName.length,
+    accessPermissions.length,
+  ];
   updateTable(tooltipData, "Tooltip", "success");
 }
 
@@ -419,18 +545,32 @@ function selectEmoji(value, element) {
   feedbackSubmit.disabled = false;
 }
 
-document.querySelector("bcm-segment-picker").addEventListener("bcm-change", async (event) => {
-  const selectedValue = event.detail;
-  activeTab = tabs[selectedValue];
-  const content = await contentMap[activeTab]();
-  const contentPanel = document.getElementById("content-panel");
-  contentPanel.innerHTML = content;
+document
+  .querySelector("bcm-segment-picker")
+  .addEventListener("bcm-change", async (event) => {
+    const selectedValue = event.detail;
+    activeTab = tabs[selectedValue];
+    const content = await contentMap[activeTab]();
+    const contentPanel = document.getElementById("content-panel");
+    contentPanel.innerHTML = content;
 
-  // İlgili grafik fonksiyonunu çağır
-  if (activeTab === "Form") formChart();
-  else if (activeTab === "Feedback") feedbackChart();
-  else if (activeTab === "Settings") settingsChart();
-});
+    socket.emit("tabChanged", selectedValue);
+
+    if (activeTab == "Form") {
+      formChart();
+    } else if (activeTab == "Widgets") {
+      fovoriatesChart();
+    } else if (activeTab == "Tooltip") {
+      tooltipChart();
+    } else if (activeTab == "Feedback") {
+      feedbackChart();
+    } else if (activeTab == "Settings") {
+      settingsChart();
+    }
+
+    pieChart.update();
+    barChart.update();
+  });
 
 function submit() {
   const form = document.getElementById("user-form");
@@ -464,10 +604,23 @@ function settingsChart() {
   pieChart.canvas.style.display = "block";
   pieChart.data.datasets[0].label = "Settings";
   pieChart.data.labels = ["blue", "emerald", "amber", "red"];
-  const blue = settingsData.filter((item) => item.additionalData.color === "blue");
-  const emerald = settingsData.filter((item) => item.additionalData.color === "emerald");
-  const amber = settingsData.filter((item) => item.additionalData.color === "amber");
-  const red = settingsData.filter((item) => item.additionalData.color === "red");
-  pieChart.data.datasets[0].data = [blue.length, emerald.length, amber.length, red.length];
+  const blue = settingsData.filter(
+    (item) => item.additionalData.color === "blue"
+  );
+  const emerald = settingsData.filter(
+    (item) => item.additionalData.color === "emerald"
+  );
+  const amber = settingsData.filter(
+    (item) => item.additionalData.color === "amber"
+  );
+  const red = settingsData.filter(
+    (item) => item.additionalData.color === "red"
+  );
+  pieChart.data.datasets[0].data = [
+    blue.length,
+    emerald.length,
+    amber.length,
+    red.length,
+  ];
   updateTable(settingsData, "Settings", "success");
 }
