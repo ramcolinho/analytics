@@ -15,17 +15,48 @@ let selectedEmoji = null;
 async function loadTemplate(templateName) {
   try {
     const response = await fetch(`/templates/${templateName}.html`);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    return await response.text();
+    let html = await response.text();
+    
+    // Favorites sayfası için özel işlem
+    if (templateName === 'favorites') {
+      const sessionId = localStorage.getItem("sessionId");
+      const widgetTypes = [
+        'assessment-sheets',
+        'fsm-reports',
+        'sms-credits',
+        'students-report',
+        'my-diary',
+        'absent-staff'
+      ];
+      
+      // Her widget için favori durumunu kontrol et
+      widgetTypes.forEach(type => {
+        const isFavorite = favoriteData.some(item => 
+          item.additionalData.cardType === type && 
+          item.additionalData.sessionId === sessionId &&
+          item.additionalData.selected === true
+        );
+        
+        if (isFavorite) {
+          // Favori olan widget'ların yıldızını seçili hale getir
+          html = html.replace(
+            `<button class="favorite-btn text-gray-400" onclick="toggleFavorite(this, '${type}')">`,
+            `<button class="favorite-btn text-yellow-400 active" onclick="toggleFavorite(this, '${type}')">`,
+          );
+        }
+      });
+    }
+    
+    return html;
   } catch (error) {
-    console.error("Template yükleme hatası:", error);
+    console.error("Error loading template:", error);
     return "";
   }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (!localStorage.getItem("sessionId")) {
-    sessionId = "session_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    sessionId = "s" + Date.now().toString().slice(-6) + Math.random().toString(36).slice(-4);
     localStorage.setItem("sessionId", sessionId);
   } else {
     sessionId = localStorage.getItem("sessionId");
@@ -35,13 +66,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const contentPanel = document.getElementById("content-panel");
   const contentMap = {
     Form: async () => await loadTemplate("form"),
-    Widgets: () => widgets.map((widget) => createWidgetHTML(widget)).join(""),
+    Favorites: async () => await loadTemplate("favorites"),
     Tooltip: async () => await loadTemplate("tooltip"),
     Feedback: async () => await loadTemplate("feedback"),
     Settings: async () => await loadTemplate("settings"),
   };
   const content = await contentMap[activeTab]();
   contentPanel.innerHTML = content;
+  highlightActiveSession();
   formChart();
 });
 
@@ -51,7 +83,7 @@ const barCtx = document.getElementById("barChart").getContext("2d");
 // Tab mapping'i güncellendi
 const tabs = {
   1: "Form",
-  2: "Widgets",
+  2: "Favorites",
   3: "Tooltip",
   4: "Feedback",
   5: "Settings",
@@ -60,7 +92,7 @@ const tabs = {
 // Content map'i güncellendi
 const contentMap = {
   Form: async () => await loadTemplate("form"),
-  Widgets: () => widgets.map((widget) => createWidgetHTML(widget)).join(""),
+  Favorites: async () => await loadTemplate("favorites"),
   Tooltip: async () => await loadTemplate("tooltip"),
   Feedback: async () => await loadTemplate("feedback"),
   Settings: async () => await loadTemplate("settings"),
@@ -139,7 +171,7 @@ function createWidgetHTML(widget) {
                 <span class="text-lg font-semibold">${widget.title}</span>
             </div>
             <button id="${widget.id}" class="favorite-btn text-gray-400 hover:text-yellow-400 transition-colors" onclick="toggleFavorite(this, '${widget.id}')">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                         d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
                     </path>
@@ -205,10 +237,6 @@ socket.on("initialData", (data) => {
     formChart();
   }
 
-  if (activeTab == "Widgets") {
-    fovoriatesChart();
-  }
-
   if (activeTab == "Tooltip") {
     tooltipChart();
   }
@@ -221,6 +249,10 @@ socket.on("initialData", (data) => {
     settingsChart();
   }
 
+  if (activeTab == "Favorites") {
+    favoritesChart();
+  }
+
   // if (activeTab == "Custom") {
   //   updateTable([], "Custom", "success");
   // }
@@ -230,15 +262,16 @@ socket.on("initialData", (data) => {
 });
 
 function updateTable(data, type, status) {
+  
   const tableBody = document.getElementById("analytics-table");
   if (!data) {
     tableBody.innerHTML = "";
     return;
   }
-  const html = data
-    .map(
-      (item) => `
-        <tr class="hover:bg-gray-50">
+  const sortedData = data.sort((a, b) => new Date(b.timestamp || Date.now()) - new Date(a.timestamp || Date.now()));
+  const html = sortedData.map(
+    (item) => `
+        <tr class="hover:bg-gray-50" data-session-id="${item.sessionId || ''}">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.sessionId}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.type}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -246,10 +279,10 @@ function updateTable(data, type, status) {
             </td>
         </tr>
     `
-    )
-    .join("");
+  ).join("");
 
   tableBody.innerHTML = html;
+  highlightActiveSession();
 }
 
 socket.on("tabChanged", async (data) => {
@@ -257,6 +290,23 @@ socket.on("tabChanged", async (data) => {
   const content = await contentMap[activeTab]();
   const contentPanel = document.getElementById("content-panel");
   contentPanel.innerHTML = content;
+
+  socket.emit("tabChanged", data);
+
+  if (activeTab == "Form") {
+    formChart();
+  } else if (activeTab == "Tooltip") {
+    tooltipChart();
+  } else if (activeTab == "Feedback") {
+    feedbackChart();
+  } else if (activeTab == "Settings") {
+    settingsChart();
+  } else if (activeTab == "Favorites") {
+    favoritesChart();
+  }
+
+  pieChart.update();
+  barChart.update();
 });
 
 socket.on("dataUpdated", () => {
@@ -264,28 +314,155 @@ socket.on("dataUpdated", () => {
 });
 
 function feedbackChart() {
-  barChart.canvas.style.display = "none";
-  pieChart.canvas.style.display = "block";
+  // Reset chart type and options
+  barChart.config.type = 'bar';
+  barChart.options = {};
+  
+  pieChart.canvas.style.display = "none";
+  barChart.canvas.style.display = "block";
+  
   const verySad = feedbackData.filter((item) => item.additionalData.feedback === "verySad");
   const sad = feedbackData.filter((item) => item.additionalData.feedback === "sad");
   const neutral = feedbackData.filter((item) => item.additionalData.feedback === "neutral");
   const happy = feedbackData.filter((item) => item.additionalData.feedback === "happy");
   const veryHappy = feedbackData.filter((item) => item.additionalData.feedback === "veryHappy");
+  
+  const totalFeedback = feedbackData.length || 1;
+  const voteCounts = [
+    verySad.length,
+    sad.length,
+    neutral.length,
+    happy.length,
+    veryHappy.length
+  ];
 
-  pieChart.data.datasets[0].label = "Feedback";
-  pieChart.data.labels = ["Very Sad", "Sad", "Neutral", "Happy", "Very Happy"];
-  pieChart.data.datasets[0].data = [verySad.length, sad.length, neutral.length, happy.length, veryHappy.length];
+  // Yüzdeleri sadece tooltip için hesapla
+  const percentages = voteCounts.map(count => (count / totalFeedback) * 100);
+
+  barChart.options = {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1F2937',
+        bodyColor: '#374151',
+        titleFont: {
+          size: 14,
+          weight: 600
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          title: function(context) {
+            const labels = ["Very Dissatisfied", "Dissatisfied", "Neutral", "Satisfied", "Very Satisfied"];
+            return labels[context[0].dataIndex];
+          },
+          label: function(context) {
+            const index = context.dataIndex;
+            const votes = voteCounts[index];
+            const percentage = percentages[index].toFixed(1);
+            return [
+              `Number of Votes: ${votes}`,
+              `Percentage: ${percentage}%`,
+              `Total Votes: ${totalFeedback}`
+            ];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: Math.max(...voteCounts) + 1, // En yüksek oy sayısına göre ayarla
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          display: false
+        },
+        border: {
+          display: false
+        }
+      },
+      y: {
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          color: '#374151',
+          font: {
+            size: 14,
+            weight: 500
+          },
+          callback: function(value, index) {
+            const labels = ["Very Dissatisfied", "Dissatisfied", "Neutral", "Satisfied", "Very Satisfied"];
+            return labels[index];
+          }
+        },
+        border: {
+          display: false
+        }
+      }
+    },
+    layout: {
+      padding: {
+        right: 10
+      }
+    },
+    maintainAspectRatio: false
+  };
+
+  // Dataset ayarları
+  barChart.data.labels = ["Very Dissatisfied", "Dissatisfied", "Neutral", "Satisfied", "Very Satisfied"];
+  barChart.data.datasets = [{
+    data: voteCounts, // Yüzde yerine direkt oy sayılarını kullan
+    backgroundColor: [
+      '#B91C1C', // Very Dissatisfied - kırmızı
+      '#C2410C', // Dissatisfied - turuncu
+      '#B45309', // Neutral - kahverengi
+      '#047857', // Satisfied - yeşil
+      '#047857'  // Very Satisfied - yeşil
+    ],
+    borderWidth: 0,
+    borderRadius: 4,
+    barThickness: 20,
+    barPercentage: 0.95,
+    categoryPercentage: 0.95
+  }];
+
+  // Chart yüksekliğini ve genişliğini ayarla
+  barChart.canvas.parentNode.style.height = '250px';
+  barChart.canvas.style.width = '100%';
+  
+  barChart.update();
+
   const feedbackDataTable = feedbackData.map((item) => ({
     sessionId: item.additionalData.sessionId,
     type: item.additionalData.feedback,
-    timestamp: new Date(item.timestamp || Date.now()).toLocale
+    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
   }));
   updateTable(feedbackDataTable);
 }
 
 function fovoriatesChart() {
+  // Reset chart type and options
+  barChart.config.type = 'bar';
+  barChart.options = {};
+
   pieChart.canvas.style.display = "none";
   barChart.canvas.style.display = "block";
+
   const getActiveUserNameFavorites = favoriteData.filter((item) => item.additionalData.sessionId === sessionId);
   const isCalendarWidgetFavorite = getActiveUserNameFavorites.find((item) => item.additionalData.cardType == "calendar-widget" && item.additionalData.selected === true);
   const isTableWidgetFavorite = getActiveUserNameFavorites.find((item) => item.additionalData.cardType == "table-widget" && item.additionalData.selected === true);
@@ -297,26 +474,108 @@ function fovoriatesChart() {
   const totalCardWidgetFavorites = favoriteData.filter((item) => item.additionalData.cardType === "chart-widget" && item.additionalData.selected === true).length;
   const totalNotificationWidgetFavorites = favoriteData.filter((item) => item.additionalData.cardType === "notification-widget" && item.additionalData.selected === true).length;
 
-  if (isCalendarWidgetFavorite) {
-    document.getElementById("calendar-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("calendar-widget").querySelector("svg").setAttribute("fill", "currentColor");
-  }
-  if (isTableWidgetFavorite) {
-    document.getElementById("table-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("table-widget").querySelector("svg").setAttribute("fill", "currentColor");
-  }
-  if (isChartdWidgetFavorite) {
-    document.getElementById("chart-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("chart-widget").querySelector("svg").setAttribute("fill", "currentColor");
-  }
-  if (isNotificationWidgetFavorite) {
-    document.getElementById("notification-widget").classList.add("active", "text-yellow-400");
-    document.getElementById("notification-widget").querySelector("svg").setAttribute("fill", "currentColor");
-  }
-  barChart.data.datasets[0].label = "User Favorites";
-  barChart.data.labels = ["Calendar", "Table", "Chart", "Notification"];
+  barChart.options = {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1F2937',
+        bodyColor: '#374151',
+        titleFont: {
+          size: 14,
+          weight: 600
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          title: function(context) {
+            const labels = ["Calendar", "Table", "Chart", "Notification"];
+            return labels[context[0].dataIndex];
+          },
+          label: function(context) {
+            const index = context.dataIndex;
+            const votes = [totalCalendarWidgetFavorites, totalTableWidgetFavorites, totalCardWidgetFavorites, totalNotificationWidgetFavorites][index];
+            return [
+              `Number of Favorites: ${votes}`
+            ];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: Math.max(totalCalendarWidgetFavorites, totalTableWidgetFavorites, totalCardWidgetFavorites, totalNotificationWidgetFavorites) + 1,
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          display: false
+        },
+        border: {
+          display: false
+        }
+      },
+      y: {
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          color: '#374151',
+          font: {
+            size: 14,
+            weight: 500
+          },
+          callback: function(value, index) {
+            const labels = ["Calendar", "Table", "Chart", "Notification"];
+            return labels[index];
+          }
+        },
+        border: {
+          display: false
+        }
+      }
+    },
+    layout: {
+      padding: {
+        right: 10
+      }
+    },
+    maintainAspectRatio: false
+  };
 
-  barChart.data.datasets[0].data = [totalCalendarWidgetFavorites, totalTableWidgetFavorites, totalCardWidgetFavorites, totalNotificationWidgetFavorites];
+  // Dataset ayarları
+  barChart.data.labels = ["Calendar", "Table", "Chart", "Notification"];
+  barChart.data.datasets = [{
+    data: [totalCalendarWidgetFavorites, totalTableWidgetFavorites, totalCardWidgetFavorites, totalNotificationWidgetFavorites],
+    backgroundColor: [
+      '#3B82F6', // Calendar - blue
+      '#10B981', // Table - green
+      '#F59E0B', // Chart - yellow
+      '#EF4444'  // Notification - red
+    ],
+    borderWidth: 0,
+    borderRadius: 4,
+    barThickness: 20,
+    barPercentage: 0.95,
+    categoryPercentage: 0.95
+  }];
+
+  barChart.canvas.parentNode.style.height = '250px';
+  barChart.canvas.style.width = '100%';
+
+  barChart.update();
 
   const favoriteDataTable = favoriteData.map((item) => ({
     sessionId: item.additionalData.sessionId,
@@ -324,97 +583,6 @@ function fovoriatesChart() {
     timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
   }));
   updateTable(favoriteDataTable);
-}
-
-function formChart() {
-  barChart.canvas.style.display = "none";
-  pieChart.canvas.style.display = "block";
-  errorCounts = {
-    schoolId: 0,
-    userName: 0,
-    password: 0,
-  };
-  pieChart.data.datasets[0].label = "User Form Field Errors";
-  pieChart.data.labels = ["schoolID", "userName", "password"];
-  formData.forEach((item) => {
-    item.errors.errorDetails.forEach((error) => {
-      if (error?.schoolId) errorCounts.schoolId++;
-      if (error?.userName) errorCounts.userName++;
-      if (error?.password) errorCounts.password++;
-    });
-  });
-  pieChart.data.datasets[0].data = [errorCounts.schoolId, errorCounts.userName, errorCounts.password];
-  const formDataTable = formData.map((item) => ({
-    sessionId: item.additionalData.sessionId,
-    type: item.eventType,
-    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
-  }))
-  updateTable(formDataTable);
-}
-
-function tooltipChart() {
-  barChart.canvas.style.display = "none";
-  pieChart.canvas.style.display = "block";
-  const reportTitle = tooltipData.filter((item) => item.additionalData.message === "Report Title");
-  const reportDescription = tooltipData.filter((item) => item.additionalData.message === "Report Description");
-  const folderName = tooltipData.filter((item) => item.additionalData.message === "Folder Name");
-
-  const accessPermissions = tooltipData.filter((item) => item.additionalData.message === "Access Permissions");
-
-  pieChart.data.datasets[0].label = "Tooltip Opened";
-  pieChart.data.labels = ["Report Title Tooltip", "Report Description Tooltip", "Folder Name Tooltip", "Access Permissions Tooltip"];
-  pieChart.data.datasets[0].data = [reportTitle.length, reportDescription.length, folderName.length, accessPermissions.length];
-  const tooltipDataTable = tooltipData.map((item) => ({
-    sessionId: item.additionalData.sessionId,
-    type: item.additionalData.message,
-    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
-  }));
-  updateTable(tooltipDataTable);
-}
-
-window.addEventListener("bcmAnalyticsEvent", (event) => {
-  // seet sessionId
-  event.detail.additionalData.sessionId = sessionId;
-  if (event.detail.eventType === "favorites") {
-    socket.emit("editData", event.detail);
-  } else {
-    const payload = event.detail;
-    socket.emit("updateData", payload);
-  }
-});
-
-function toggleFavorite(button, type) {
-  button.classList.toggle("active");
-  const svg = button.querySelector("svg");
-
-  if (button.classList.contains("active")) {
-    button.classList.add("text-yellow-400");
-    svg.setAttribute("fill", "currentColor");
-  } else {
-    button.classList.remove("text-yellow-400");
-    svg.setAttribute("fill", "none");
-  }
-  window.bcm.track(window.userName + "-" + type, "favorites", {
-    cardType: type,
-    id: type,
-    sessionId: localStorage.getItem("sessionId"),
-    selected: button.classList.contains("active"),
-  });
-}
-
-function selectEmoji(value, element) {
-  debugger;
-  const allEmojis = document.querySelectorAll(".far");
-  allEmojis.forEach((emoji) => {
-    emoji.classList.remove("text-yellow-400");
-    emoji.classList.add("text-gray-500");
-  });
-
-  element.classList.remove("text-gray-500");
-  element.classList.add("text-yellow-400");
-  selectedEmoji = value;
-  const feedbackSubmit = document.getElementById("feedbackSubmit");
-  feedbackSubmit.disabled = false;
 }
 
 document.querySelector("bcm-tab-group").addEventListener("bcm-tab-change", async (event) => {
@@ -428,14 +596,14 @@ document.querySelector("bcm-tab-group").addEventListener("bcm-tab-change", async
 
   if (activeTab == "Form") {
     formChart();
-  } else if (activeTab == "Widgets") {
-    fovoriatesChart();
   } else if (activeTab == "Tooltip") {
     tooltipChart();
   } else if (activeTab == "Feedback") {
     feedbackChart();
   } else if (activeTab == "Settings") {
     settingsChart();
+  } else if (activeTab == "Favorites") {
+    favoritesChart();
   }
 
   pieChart.update();
@@ -472,17 +640,196 @@ function saveSettings() {
 function settingsChart() {
   barChart.canvas.style.display = "none";
   pieChart.canvas.style.display = "block";
+  pieChart.config.type = 'doughnut';
+  pieChart.options.plugins.legend.position = 'right';
   pieChart.data.datasets[0].label = "Settings";
   pieChart.data.labels = ["blue", "emerald", "amber", "red"];
+
   const blue = settingsData.filter((item) => item.additionalData.color === "blue");
   const emerald = settingsData.filter((item) => item.additionalData.color === "emerald");
   const amber = settingsData.filter((item) => item.additionalData.color === "amber");
   const red = settingsData.filter((item) => item.additionalData.color === "red");
+
   pieChart.data.datasets[0].data = [blue.length, emerald.length, amber.length, red.length];
+  pieChart.data.datasets[0].backgroundColor = [
+    "rgba(99, 102, 241, 0.2)",   // blue
+    "rgba(34, 197, 94, 0.2)",    // emerald
+    "rgba(245, 158, 11, 0.2)",   // amber
+    "rgba(239, 68, 68, 0.2)"     // red
+  ];
+  pieChart.data.datasets[0].borderColor = [
+    "rgba(99, 102, 241, 1)",     // blue
+    "rgba(34, 197, 94, 1)",      // emerald
+    "rgba(245, 158, 11, 1)",     // amber
+    "rgba(239, 68, 68, 1)"       // red
+  ];
+  pieChart.update();
+
   const settingsDataTable = settingsData.map((item) => ({
     sessionId: item.additionalData.sessionId,
     type: item.additionalData.color,
     timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
   }));
   updateTable(settingsDataTable);
+}
+
+function toggleFavorite(button, type) {
+  button.classList.toggle("active");
+  const svg = button.querySelector("svg");
+
+  if (button.classList.contains("active")) {
+    svg.classList.add("text-yellow-400");
+    svg.setAttribute("fill", "currentColor");
+  } else {
+    svg.classList.remove("text-yellow-400");
+    svg.setAttribute("fill", "none");
+  }
+  window.bcm.track(window.userName + "-" + type, "favorites", {
+    cardType: type,
+    id: type,
+    sessionId: localStorage.getItem("sessionId"),
+    selected: button.classList.contains("active"),
+  });
+
+  // Chart'ı güncelle
+  if (activeTab === "Favorites") {
+    favoritesChart();
+  }
+}
+
+function favoritesChart() {
+  barChart.canvas.style.display = "none";
+  pieChart.canvas.style.display = "block";
+  pieChart.config.type = 'doughnut';
+  pieChart.options.plugins.legend.position = 'right';
+  pieChart.data.datasets[0].label = "Favorites";
+  
+  const widgetTypes = [
+    'assessment-sheets',
+    'fsm-reports',
+    'sms-credits',
+    'students-report',
+    'my-diary',
+    'absent-staff'
+  ];
+
+  const widgetLabels = [
+    'Assessment Sheets',
+    'FSM Reports',
+    'SMS Credits',
+    'Students on Report',
+    'My Diary',
+    'Absent Staff'
+  ];
+
+  pieChart.data.labels = widgetLabels;
+  const data = widgetTypes.map(type => {
+    return favoriteData.filter(item => 
+      item.additionalData.cardType === type && 
+      item.additionalData.selected === true
+    ).length;
+  });
+
+  pieChart.data.datasets[0].data = data;
+  pieChart.update();
+
+  const favoritesDataTable = favoriteData
+    .filter(item => item.additionalData.selected === true)
+    .map((item) => ({
+      sessionId: item.additionalData.sessionId,
+      type: item.additionalData.cardType,
+      timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
+    }));
+  
+  updateTable(favoritesDataTable);
+}
+
+function getScoreText(index) {
+  switch(index) {
+    case 0: return 'Very Low (-2)';
+    case 1: return 'Low (-1)';
+    case 2: return 'Neutral (0)';
+    case 3: return 'High (+1)';
+    case 4: return 'Very High (+2)';
+    default: return 'N/A';
+  }
+}
+
+window.addEventListener("bcmAnalyticsEvent", (event) => {
+  // seet sessionId
+  event.detail.additionalData.sessionId = sessionId;
+  if (event.detail.eventType === "favorites") {
+    socket.emit("editData", event.detail);
+  } else {
+    const payload = event.detail;
+    socket.emit("updateData", payload);
+  }
+});
+
+function formChart() {
+  barChart.canvas.style.display = "none";
+  pieChart.canvas.style.display = "block";
+  pieChart.config.type = 'doughnut';
+  pieChart.options.plugins.legend.position = 'right';
+  errorCounts = {
+    schoolId: 0,
+    userName: 0,
+    password: 0,
+  };
+  pieChart.data.datasets[0].label = "User Form Field Errors";
+  pieChart.data.labels = ["schoolID", "userName", "password"];
+  formData.forEach((item) => {
+    item.errors.errorDetails.forEach((error) => {
+      if (error?.schoolId) errorCounts.schoolId++;
+      if (error?.userName) errorCounts.userName++;
+      if (error?.password) errorCounts.password++;
+    });
+  });
+  pieChart.data.datasets[0].data = [errorCounts.schoolId, errorCounts.userName, errorCounts.password];
+  const formDataTable = formData.map((item) => ({
+    sessionId: item.additionalData.sessionId,
+    type: item.eventType,
+    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
+  }))
+  updateTable(formDataTable);
+}
+
+function tooltipChart() {
+  barChart.canvas.style.display = "none";
+  pieChart.canvas.style.display = "block";
+  pieChart.config.type = 'doughnut';
+  pieChart.options.plugins.legend.position = 'right';
+  const reportTitle = tooltipData.filter((item) => item.additionalData.message === "Report Title");
+  const reportDescription = tooltipData.filter((item) => item.additionalData.message === "Report Description");
+  const folderName = tooltipData.filter((item) => item.additionalData.message === "Folder Name");
+
+  const accessPermissions = tooltipData.filter((item) => item.additionalData.message === "Access Permissions");
+
+  pieChart.data.datasets[0].label = "Tooltip Opened";
+  pieChart.data.labels = ["Report Title Tooltip", "Report Description Tooltip", "Folder Name Tooltip", "Access Permissions Tooltip"];
+  pieChart.data.datasets[0].data = [reportTitle.length, reportDescription.length, folderName.length, accessPermissions.length];
+  const tooltipDataTable = tooltipData.map((item) => ({
+    sessionId: item.additionalData.sessionId,
+    type: item.additionalData.message,
+    timestamp: new Date(item.timestamp || Date.now()).toLocaleString(),
+  }));
+  updateTable(tooltipDataTable);
+}
+
+function highlightActiveSession() {
+  const currentSessionId = localStorage.getItem("sessionId");
+  document.querySelectorAll('[data-session-id]').forEach(element => {
+    const elementSessionId = element.getAttribute('data-session-id');
+    if (elementSessionId === currentSessionId) {
+      element.classList.add('active-session-row');
+    } else {
+      element.classList.remove('active-session-row');
+    }
+    
+    // Format session ID display
+    const sessionIdElement = element.querySelector('.session-id');
+    if (sessionIdElement) {
+      sessionIdElement.setAttribute('title', elementSessionId); // Show full ID on hover
+    }
+  });
 }
