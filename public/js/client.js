@@ -673,6 +673,20 @@ function settingsChart() {
   updateTable(settingsDataTable);
 }
 
+function selectEmoji(value, element) {
+  const allEmojis = document.querySelectorAll(".far");
+  allEmojis.forEach((emoji) => {
+    emoji.classList.remove("text-yellow-400");
+    emoji.classList.add("text-gray-500");
+  });
+
+  element.classList.remove("text-gray-500");
+  element.classList.add("text-yellow-400");
+  selectedEmoji = value;
+  const feedbackSubmit = document.getElementById("feedbackSubmit");
+  feedbackSubmit.disabled = false;
+}
+
 function toggleFavorite(button, type) {
   button.classList.toggle("active");
   const svg = button.querySelector("svg");
