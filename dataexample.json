@@ -1,0 +1,190 @@
+[
+    {
+      "componentId": "settings",
+      "componentName": "componentName 1",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "language": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "color": "emerald",
+        "sessionId": "session_1732806457785_vs6a9jddv"
+      },
+      "id": "1",
+      "eventType": "settings",
+      "timestamp": "2024-12-02T10:51:49.922Z"
+    },
+    {
+      "componentId": "componentId 2",
+      "componentName": "componentName 2",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "userLanguage": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "schoolId": "asd",
+        "userName": null,
+        "password": null,
+        "isValid": false,
+        "sessionId": "session_1732806457785_vs6a9jddv"
+      },
+      "id": "2",
+      "formId": "user-form",
+      "formName": "",
+      "eventType": "submit",
+      "errors": {
+        "isValid": false,
+        "message": "Please fill in all inputs",
+        "errorDetails": [
+          {
+            "userName": "This field is required"
+          },
+          {
+            "password": "This field is required"
+          }
+        ],
+        "formData": {
+          "schoolId": "asd",
+          "userName": null,
+          "password": null
+        }
+      },
+      "timestamp": "2024-12-02T11:03:33.839Z"
+    },
+    {
+      "componentId": "Martin-calendar-widget",
+      "componentName": "calendar",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "language": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "cardType": "calendar-widget",
+        "id": "calendar-widget",
+        "sessionId": "session_1732806457785_vs6a9jddv",
+        "selected": true
+      },
+      "id": "3",
+      "eventType": "favorites",
+      "timestamp": "2024-12-02T11:03:50.576Z"
+    },
+    {
+      "componentId": "Martin-table-widget",
+      "componentName": "table",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "language": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "cardType": "table-widget",
+        "id": "table-widget",
+        "sessionId": "session_1732806457785_vs6a9jddv",
+        "selected": true
+      },
+      "id": "4",
+      "eventType": "favorites",
+      "timestamp": "2024-12-02T11:03:44.394Z"
+    },
+    {
+      "componentId": "bcmx946cg2",
+      "componentName": "componentName 5",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "language": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "tooltipId": "bcmx946cg2",
+        "message": "Report Title",
+        "sessionId": "session_1732806457785_vs6a9jddv"
+      },
+      "id": "5",
+      "eventType": "TOOLTIP",
+      "timestamp": "2024-12-02T11:03:55.280Z"
+    },
+    {
+      "componentId": "bcmla1wfbe",
+      "componentName": "componentName 6",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "language": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "tooltipId": "bcmla1wfbe",
+        "message": "Report Description",
+        "sessionId": "session_1732806457785_vs6a9jddv"
+      },
+      "id": "6",
+      "eventType": "TOOLTIP",
+      "timestamp": "2024-12-02T11:03:56.702Z"
+    },
+    {
+      "componentId": "feedback",
+      "componentName": "componentName 7",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "language": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "feedback": "neutral",
+        "sessionId": "session_1732806457785_vs6a9jddv"
+      },
+      "id": "7",
+      "eventType": "feedback",
+      "timestamp": "2024-12-02T11:04:00.112Z"
+    },
+    {
+      "componentId": "settings",
+      "componentName": "componentName 8",
+      "userInfo": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "language": "tr-TR",
+        "screenSize": "1440x725",
+        "userName": "Martin"
+      },
+      "processData": {
+  
+      },
+      "additionalData": {
+        "color": "amber",
+        "sessionId": "session_1732806457785_vs6a9jddv"
+      },
+      "id": "8",
+      "eventType": "settings",
+      "timestamp": "2024-12-02T11:04:06.862Z"
+    }
+  ]
